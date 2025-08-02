@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Hunt - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <h2>Admin Dashboard</h2>
+            <div class="user-info">
+                <span id="adminUsername"></span>
+            </div>
+            <button id="logoutButton" class="btn-secondary">Logout</button>
+        </div>
+    </header>
+    <div class="container">
+        <div class="admin-card">
+            <h3>Live Leaderboard</h3>
+            <div class="leaderboard-container">
+                <table id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Participant</th>
+                            <th>Current Checkpoint</th>
+                            <th>Total Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modalTitle">Access Denied</h3>
+            <p id="modalMessage">You must be an admin to view this page. Redirecting to login...</p>
+        </div>
+    </div>
+</body>
+    <script>
+        // --- SUPABASE CLIENT SETUP ---
+        const SUPABASE_URL = 'https://sfvnssyrmikyyyewwdkw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmdm5zc3lybWlreXl5ZXd3ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxNjI3NjksImV4cCI6MjA2OTczODc2OX0.SqPgb7f_iU7uVj1IW5AVJWo2qHsPLPXMiXMy9g88JgQ';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- DOM ELEMENTS ---
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        const adminUsername = document.getElementById('adminUsername');
+        const logoutButton = document.getElementById('logoutButton');
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            // Verify user is an admin
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('role, username')
+                .eq('id', session.user.id)
+                .single();
+            if (profileError || profile.role !== 'admin') {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+                return;
+            }
+            adminUsername.textContent = `Admin: ${profile.username}`;
+            // Initial load and set up real-time listener
+            await fetchAndRenderLeaderboard();
+            listenForChanges();
+        });
+
+        // --- DATA FETCHING AND RENDERING ---
+        async function fetchAndRenderLeaderboard() {
+            // Fetch all profiles with their progress
+            const { data: profiles, error } = await supabase
+                .from('profiles')
+                .select('id, username, total_score, progress ( checkpoint_id, status )')
+                .eq('role', 'participant')
+                .order('total_score', { ascending: false });
+            if (error) {
+                console.error('Error fetching leaderboard:', error);
+                return;
+            }
+            // Process data to find current checkpoint for each user
+            const leaderboardData = profiles.map(profile => {
+                const unlockedCheckpoints = profile.progress
+                    .filter(p => p.status === 'unlocked')
+                    .map(p => p.checkpoint_id);
+                const completedCount = profile.progress.filter(p => p.status === 'completed').length;
+                let currentStatus;
+                if (unlockedCheckpoints.length > 0) {
+                    currentStatus = `On Checkpoint ${Math.min(...unlockedCheckpoints)}`;
+                } else if (completedCount === 4) {
+                    currentStatus = 'Finished!';
+                } else {
+                    currentStatus = 'Not Started';
+                }
+                return {
+                    username: profile.username,
+                    score: profile.total_score,
+                    status: currentStatus
+                };
+            });
+            // Sort by score
+            leaderboardData.sort((a, b) => b.score - a.score);
+            // Render the table
+            leaderboardBody.innerHTML = '';
+            leaderboardData.forEach((player, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.username}</td>
+                    <td>${player.status}</td>
+                    <td>${player.score}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+
+        // --- REAL-TIME SUBSCRIPTION ---
+        function listenForChanges() {
+            // Listen to changes on both profiles (for score updates) and progress (for status changes)
+            const subscription = supabase.channel('public:profiles')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
+                    fetchAndRenderLeaderboard();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, payload => {
+                    fetchAndRenderLeaderboard();
+                })
+                .subscribe();
+        }
+
+        // --- LOGOUT ---
+        logoutButton.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
