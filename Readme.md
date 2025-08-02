@@ -19,8 +19,6 @@
 
 ---
 
-## 📄 License
-MIT License. See [LICENSE](LICENSE) for details.
 ## 🛠️ Tech Stack
 - **Frontend:** HTML5, CSS3, JavaScript (Vanilla JS)
 - **Backend & Database:** Supabase (PostgreSQL)
