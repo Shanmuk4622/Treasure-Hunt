@@ -1,121 +1,78 @@
-## 🎮 How to Play
+# 🏴‍☠️ Treasure Hunt — Redesigned
 
-### Create an Admin Account
-1. Sign up through the app UI.
-2. In Supabase, go to Authentication → Users, copy your new user's UID.
-3. In the SQL Editor, run:
-    ```sql
-    UPDATE public.profiles
-    SET role = 'admin'
-    WHERE id = 'PASTE_YOUR_USER_ID_HERE';
-    ```
+> A drop-in replacement for the original Treasure Hunt web application with a fresh, immersive pirate-themed design.
 
-### Create Participant Accounts
-- Sign up for new accounts (default role: participant).
+![Treasure Hunt Preview](image1.png)
 
-### Start the Hunt!
-- Log in as a participant to solve puzzles.
-- Log in as admin to watch the leaderboard live.
+## ✨ What's New
+
+Experience the treasure hunt like never before! Here's what makes this redesign special:
+
+| Feature | Description |
+|---------|-------------|
+| **🌟 Doubloon Gold Accent** | Primary buttons, focus states, score display, and celebration screens now gleam with gold |
+| **📜 Cinzel Display Font** | The "Treasure Hunt" wordmark and victory messages use elegant serif typography |
+| **💻 JetBrains Mono** | Secret code inputs, leaderboard ranks, and scores use a sleek monospace font |
+| **🧭 Compass Rose Decoration** | Subtle compass watermark in the auth screen background and header |
+| **🎭 Backdrop Blur** | Modal overlays now have a smooth blur effect for focus |
+| **📊 Score Pill** | Header displays score in a gold-tinted pill instead of plain text |
+| **🏆 Enhanced Leaderboard** | Uppercase headers, hover effects, monospace rank/score, gold #1 highlight, green "Finished!" badges |
+
+## 🚀 Quick Setup
+
+Ready to bring the treasure home? Here's how:
+
+### 1. Replace Files
+Copy these files to your repo root:
+- `index.html`
+- `dashboard.html`
+- `admin.html`
+- `style.css`
+
+### 2. Copy Assets
+```bash
+cp -r redesigned/assets/ ./assets/
+```
+
+### 3. Configure Supabase
+The Supabase credentials are already pre-configured in all HTML files:
+- **URL:** `https://sfvnssyrmikyyyewwdkw.supabase.co`
+- **Key:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+> ⚠️ **Pro Tip:** If you're using your own Supabase instance, update the `SUPABASE_URL` and `SUPABASE_ANON_KEY` constants in each HTML file.
+
+## 🎮 How It Works
+
+### Player Flow
+1. **Landing** → Login or create an account
+2. **Dashboard** → Solve puzzles, submit secret codes, earn points
+3. **Challenges** → Easy → Medium → Hard → Medium progression
+4. **Finish** → See final score on the leaderboard
+
+### Admin Flow
+1. **Admin Dashboard** → View live leaderboard
+2. **Monitor** → See all participants' progress in real-time
+3. **Reset** → Clear a player's progress if needed
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Vanilla HTML, CSS, JavaScript
+- **Backend:** Supabase (Auth, Database, Realtime)
+- **Fonts:** Cinzel, Poppins, JetBrains Mono
+
+## 📂 Project Structure
+
+```
+├── index.html          # Login/Signup page
+├── dashboard.html      # Player game interface
+├── admin.html          # Admin leaderboard
+├── style.css           # All styles (drop-in replacement)
+├── assets/
+│   ├── logo-mark.svg
+│   └── compass-rose.svg
+└── preview.html        # Quick preview of all pages
+```
 
 ---
 
-## 📄 License
-MIT License. See [LICENSE](LICENSE) for details.
-## 🛠️ Tech Stack
-- **Frontend:** HTML5, CSS3, JavaScript (Vanilla JS)
-- **Backend & Database:** Supabase (PostgreSQL)
-- **Authentication:** Supabase Auth
-- **Real-Time Engine:** Supabase Realtime
-
-## ⚙️ Setup & Installation
-
-### 1. Backend Setup (Supabase)
-1. **Create a Supabase Project:** [supabase.com](https://supabase.com/)
-2. **Create Tables:** In the SQL Editor, run SQL scripts to create `profiles`, `checkpoints`, and `progress` tables. *(Paste your SQL here)*
-3. **Insert Checkpoints:** Add your checkpoint data. *(Paste your INSERT SQL here)*
-4. **Enable Row Level Security (RLS):**
-    - Go to Authentication → Policies.
-    - Enable RLS for all tables.
-    - Add RLS policies. *(Paste your policy SQL here)*
-
-### 2. Frontend Setup
-1. **Clone the Repository:**
-    ```sh
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
-    ```
-2. **Configure Supabase Credentials:**
-    - In your Supabase project, go to Project Settings → API.
-    - Copy your Project URL and anon public API Key.
-    - Open `index.html`, `dashboard.html`, and `admin.html` and replace the placeholder values:
-      ```js
-      const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-      const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-      ```
-3. **Run the Application:**
-    - Use a local server (e.g., VS Code Live Server extension).
-    - Right-click `index.html` → "Open with Live Server".
-
-# 🗺️ Real-Time Treasure Hunt Platform
-
->A modern, real-time web app for hosting interactive treasure hunts or checkpoint-based events. Built with vanilla HTML, CSS, and JavaScript, and powered by Supabase for authentication, database, and real-time features.
-
----
-
-## ✨ Overview
-This platform transforms a traditional treasure hunt into a digital, interactive experience:
-- **Participants** receive puzzles on their dashboards, travel to physical locations, and scan QR codes to get secret keys. Entering the key unlocks the next challenge and scores points.
-- **Admins** get a live dashboard to monitor all participants, scores, and progress in real-time—no refresh needed.
-
-## 🚀 Features
-
-### Participant View
-- **Secure Authentication:** Easy sign-up and login.
-- **Interactive Dashboard:** See your current puzzle, score, and checkpoint number.
-- **Code Validation:** Enter secret codes found at checkpoints.
-- **Hints:** Request a hint (with a small point penalty).
-- **Skips:** Skip a tough puzzle (with a larger penalty).
-- **Real-Time Scoring:** Scores update instantly after each action.
-- **Completion Screen:** Get a congratulations message and your final score.
-
-### Admin View
-- **Admin Dashboard Screenshot:**  
-    <a target="_blank" href=""><img src="https://imghost.online/ib/tHcxWZBe71IxtuX_1754169005.png" alt="Admin Dashboard Screenshot"/></a>
-- **Role-Based Access:** Only admins can access the admin dashboard.
-- **Live Leaderboard:** See all participants, their scores, and current checkpoint in real-time.
-- **Real-Time Monitoring:** Powered by Supabase subscriptions for instant updates.
-## 🛠️ Tech Stack
-
-- **Frontend:** HTML5, CSS3, JavaScript (Vanilla JS)
-- **Backend & Database:** Supabase (PostgreSQL)
-- **Authentication:** Supabase Auth
-- **Real-Time Engine:** Supabase Realtime
-
-## ⚙️ Setup & Installation
-
-### 1. Backend Setup (Supabase)
-1. **Create a Supabase Project:** Sign up at [supabase.com](https://supabase.com/) and create a new project.
-3. **Insert Checkpoints:** Add your checkpoint data using SQL INSERT statements. *(Paste your INSERT SQL here)*the Supabase dashboard, open the SQL Editor and run scripts to create the `profiles`, `checkpoints`, and `progress` tables. *(Paste your SQL here)*
-4. **Enable Row Level Security (RLS):**
-    - Go to Authentication → Policies.To get this project running on your own, follow these steps.
-    - Enable RLS for all tables.
-    - Add RLS policies as needed. *(Paste your policy SQL here)*
-You need a free Supabase account.
-### 2. Frontend Setup
-1. **Clone the Repository:**
-    ```sh<summary><strong>Click here for step-by-step Supabase configuration</strong></summary>
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-nameCreate a New Project: Go to Supabase and create a new project.
-    ```
-2. **Configure Supabase Credentials:**Run SQL Scripts: In the Supabase dashboard, go to the SQL Editor and run the following scripts to create the tables and add the initial data.
-    - In your Supabase project, go to Project Settings → API.
-    - Copy your Project URL and anon public API Key.Create Tables Script:
-    - Open `index.html`, `dashboard.html`, and `admin.html` and replace the placeholder values:
-      ```js
-      const SUPABASE_URL = 'YOUR_SUPABASE_URL';-- (Paste the full SQL from the previous instructions here)
-      const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-      ```Insert Checkpoints Script:
-3. **Run the Application:**
-    - Use a local server (e.g., VS Code Live Server extension).
-    - Right-click `index.html` → "Open with Live Server".-- (Paste the INSERT SQL from the previous instructions here)
-
+*All copy strings and functionality preserved from the original — only the design has been reimagined!* 🏴‍☠️

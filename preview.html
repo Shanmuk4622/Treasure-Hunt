@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redesigned Treasure Hunt — Preview</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  .preview-bar {
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border-1);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .preview-bar h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    margin: 0;
+    flex: 1;
+  }
+  .preview-bar a {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg-3);
+    text-decoration: none;
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+  }
+  .preview-bar a:hover { color: var(--fg-1); border-color: var(--border-2); }
+  .preview-bar a.active {
+    color: var(--brand-gold);
+    border-color: var(--border-gold);
+    background: rgba(224,162,58,0.08);
+  }
+  iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: var(--bg-1);
+    min-height: calc(100vh - 60px);
+  }
+</style>
+</head>
+<body>
+  <nav class="preview-bar">
+    <h1>Redesigned · Preview</h1>
+    <a href="#auth" data-page="index.html" class="active">Auth</a>
+    <a href="#game" data-page="dashboard-mock.html">Dashboard</a>
+    <a href="#admin" data-page="admin-mock.html">Admin</a>
+  </nav>
+  <iframe id="frame" src="index.html"></iframe>
+<script>
+  const links = document.querySelectorAll('.preview-bar a');
+  const frame = document.getElementById('frame');
+  links.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    links.forEach(l => l.classList.remove('active'));
+    a.classList.add('active');
+    frame.src = a.dataset.page;
+  }));
+</script>
+</body>
+</html>

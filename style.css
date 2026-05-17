@@ -1,302 +1,621 @@
+/* ============================================================
+   Treasure Hunt — Redesigned Stylesheet
+   Drop-in replacement for the original style.css.
+   Matches all class/ID names used by the original index.html,
+   dashboard.html, admin.html so the existing JS keeps working.
+   ============================================================ */
+
 :root {
-    --primary-color: #4f46e5;
-    --primary-hover: #4338ca;
-    --secondary-color: #6b7280;
-    --secondary-hover: #4b5563;
-    --danger-color: #dc2626;
-    --danger-hover: #b91c1c;
-    --background-color: #111827;
-    --card-background: #1f2937;
-    --text-color: #f9fafb;
-    --text-muted: #9ca3af;
-    --border-color: #374151;
-    --success-color: #16a34a;
+  /* Brand */
+  --brand-gold:        #E0A23A;
+  --brand-gold-hover:  #C8862A;
+  --brand-gold-soft:   #F4D58A;
+  --brand-indigo:      #4F46E5;
+  --brand-indigo-hover:#4338CA;
+
+  /* Surfaces */
+  --bg-0:        #0B1220;
+  --bg-1:        #111827;
+  --bg-2:        #1F2937;
+  --bg-3:        #283143;
+  --bg-input:    #374151;
+  --bg-overlay:  rgba(7, 12, 24, 0.72);
+
+  /* Foreground */
+  --fg-1:        #F9FAFB;
+  --fg-2:        #D1D5DB;
+  --fg-3:        #9CA3AF;
+  --fg-on-gold:  #1A1305;
+
+  /* Borders */
+  --border-1:    #374151;
+  --border-2:    #4B5563;
+  --border-gold: rgba(224, 162, 58, 0.45);
+
+  /* Semantic */
+  --danger:      #DC2626;
+  --danger-hover:#B91C1C;
+  --success:     #16A34A;
+
+  /* Effects */
+  --gold-glow:   0 0 0 2px rgba(224, 162, 58, 0.45);
+  --focus-ring:  0 0 0 2px rgba(79, 70, 229, 0.55);
+  --shadow-card: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-lg:   0 10px 25px rgba(0,0,0,0.45);
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-pill: 999px;
+
+  /* Type */
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-sans:    'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    flex-grow: 1;
-}
+h1, h2, h3, h4 { color: var(--fg-1); }
 
-/* --- Header --- */
+/* ============================================================
+   App header (dashboard + admin)
+   ============================================================ */
 .app-header {
-    background-color: var(--card-background);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 2rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border-1);
+  padding: 16px 32px;
+  position: relative;
+  overflow: hidden;
 }
-
+.app-header::before {
+  content: "";
+  position: absolute;
+  right: -40px; top: -60px;
+  width: 220px; height: 220px;
+  background: url('assets/compass-rose.svg') center/contain no-repeat;
+  opacity: 0.06;
+  pointer-events: none;
+}
 .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
 }
-
 .header-content h2 {
-    margin: 0;
-    color: var(--text-color);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  margin: 0;
+  flex: 1;
+}
+.header-content .user-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--fg-3);
+  font-size: 14px;
+}
+.header-content .user-info > span:first-child {
+  color: var(--fg-1);
+  font-weight: 600;
+}
+/* score pill (the second span in dashboard, e.g. "120 pts") */
+.header-content .user-info > span#scoreDisplay,
+.header-content .user-info > span:nth-child(2):not(:only-child) {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--brand-gold);
+  background: rgba(224,162,58,0.10);
+  border: 1px solid var(--border-gold);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
-.user-info {
-    color: var(--text-muted);
+/* ============================================================
+   Layout
+   ============================================================ */
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 32px auto;
+  padding: 0 16px;
+  flex-grow: 1;
+}
+.container--wide { max-width: 1100px; }
+
+/* Auth bg with compass watermark */
+.container.auth-bg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0 auto;
+}
+.container.auth-bg::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px; height: 480px;
+  background: url('assets/compass-rose.svg') center/contain no-repeat;
+  opacity: 0.05;
+  z-index: 0;
+  pointer-events: none;
 }
 
-#usernameDisplay, #scoreDisplay, #adminUsername {
-    font-weight: 600;
-    color: var(--text-color);
+/* ============================================================
+   Cards
+   ============================================================ */
+.auth-card,
+.game-card,
+.admin-card {
+  background: var(--bg-2);
+  padding: 32px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-1);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  z-index: 1;
 }
+.auth-card { width: 100%; max-width: 420px; }
 
-/* --- Cards (Auth, Game, Admin) --- */
-.auth-card, .game-card, .admin-card {
-    background-color: var(--card-background);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border-color);
-}
-
-.auth-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
+/* ============================================================
+   Auth
+   ============================================================ */
+.auth-header { text-align: center; margin-bottom: 24px; }
 .auth-header h1 {
-    margin: 0 0 0.5rem 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
 }
+.auth-header p { color: var(--fg-3); margin: 0; font-size: 15px; }
 
-.auth-header p {
-    color: var(--text-muted);
-    margin: 0;
-}
-
-/* --- Tabs --- */
 .auth-tabs {
-    display: flex;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-1);
 }
-
 .tab {
-    flex-grow: 1;
-    padding: 0.75rem;
-    text-align: center;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease-in-out;
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
-
-.tab:hover {
-    color: var(--text-color);
-}
-
+.tab:hover { color: var(--fg-1); }
 .tab.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+  color: var(--brand-gold);
+  border-bottom-color: var(--brand-gold);
 }
+.auth-form { display: none; }
+.auth-form.active { display: block; }
 
-/* --- Forms & Inputs --- */
-.auth-form {
-    display: none;
-}
-
-.auth-form.active {
-    display: block;
-}
-
-.input-group {
-    margin-bottom: 1.5rem;
-}
-
+/* ============================================================
+   Forms
+   ============================================================ */
+.input-group { margin-bottom: 20px; }
 .input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--fg-3);
+  letter-spacing: 0.04em;
 }
-
 .input-group input {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #374151;
-    border: 1px solid #4b5563;
-    border-radius: 8px;
-    color: var(--text-color);
-    font-size: 1rem;
-    box-sizing: border-box; /* Important for padding */
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  color: var(--fg-1);
+  font-size: 16px;
+  font-family: var(--font-sans);
+  transition: all 0.2s ease-in-out;
 }
-
 .input-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5);
+  outline: none;
+  border-color: var(--brand-indigo);
+  box-shadow: var(--focus-ring);
+}
+/* the secret-code input gets the treasure treatment */
+#secretCodeInput {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+#secretCodeInput:focus {
+  border-color: var(--brand-gold);
+  box-shadow: var(--gold-glow);
+  color: var(--brand-gold);
 }
 
-/* --- Buttons --- */
-.btn-primary, .btn-secondary, .btn-danger {
-    display: block;
-    width: 100%;
-    padding: 0.85rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-    text-align: center;
-    color: white;
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  display: inline-block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out, transform 0.1s;
 }
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active { transform: translateY(1px); }
 
 .btn-primary {
-    background-color: var(--primary-color);
+  background: var(--brand-gold);
+  color: var(--fg-on-gold);
 }
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-}
+.btn-primary:hover { background: var(--brand-gold-hover); }
 
 .btn-secondary {
-    background-color: var(--secondary-color);
+  background: transparent;
+  color: var(--fg-2);
+  border: 1px solid var(--border-2);
+  width: auto;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
 }
 .btn-secondary:hover {
-    background-color: var(--secondary-hover);
+  color: var(--fg-1);
+  border-color: var(--brand-gold);
 }
 
 .btn-danger {
-    background-color: var(--danger-color);
+  background: var(--danger);
+  color: #fff;
 }
-.btn-danger:hover {
-    background-color: var(--danger-hover);
-}
+.btn-danger:hover { background: var(--danger-hover); }
 
-#logoutButton {
-    width: auto;
-    padding: 0.5rem 1rem;
-}
-
-/* --- Game Dashboard Specific --- */
-.checkpoint-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.puzzle-text {
-    font-size: 1.25rem;
-    color: var(--text-muted);
-    min-height: 50px;
-}
-
-.checkpoint-actions {
-    margin-bottom: 1.5rem;
-}
-
+/* support actions row (Hint + Skip) */
 .support-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.support-actions .btn-secondary,
+.support-actions .btn-danger {
+  flex: 1;
+  width: auto;
+  padding: 12px;
+  font-size: 14px;
 }
 
-#finishedState {
-    text-align: center;
+/* leaderboard reset button */
+.btn-reset {
+  width: auto;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
+/* ============================================================
+   Game (dashboard)
+   ============================================================ */
+.checkpoint-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.checkpoint-header h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.puzzle-text {
+  font-size: 17px;
+  color: var(--fg-2);
+  line-height: 1.5;
+  margin: 0;
+  min-height: 50px;
+}
+.checkpoint-actions { margin-bottom: 8px; }
+
+/* meta row above title — difficulty + points pill */
+.checkpoint-meta {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.diff-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.diff-pill::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+.diff-pill--easy   { background: rgba(22,163,74,0.13); border: 1px solid rgba(22,163,74,0.45); color: #86EFAC; }
+.diff-pill--medium { background: rgba(245,158,11,0.13); border: 1px solid rgba(245,158,11,0.45); color: #FCD34D; }
+.diff-pill--hard   { background: rgba(220,38,38,0.13); border: 1px solid rgba(220,38,38,0.45); color: #FCA5A5; }
+.points-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--bg-3);
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+/* progress trail — 4 dots connected with a dashed gold trail */
+.trail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 18px auto 0;
+  max-width: 280px;
+}
+.trail__step {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  border: 2px solid var(--border-2);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.trail__step.done {
+  background: var(--brand-gold);
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgba(224,162,58,0.12);
+}
+.trail__step.active {
+  background: var(--bg-2);
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgba(224,162,58,0.18), inset 0 0 0 3px var(--brand-gold);
+  animation: trailPulse 1.6s ease-in-out infinite;
+}
+@keyframes trailPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(224,162,58,0.18), inset 0 0 0 3px var(--brand-gold); }
+  50%      { box-shadow: 0 0 0 8px rgba(224,162,58,0.06), inset 0 0 0 3px var(--brand-gold); }
+}
+.trail__link {
+  flex: 1;
+  height: 2px;
+  background-image: linear-gradient(to right, var(--border-2) 50%, transparent 50%);
+  background-size: 8px 2px;
+  background-repeat: repeat-x;
+  margin: 0 4px;
+}
+.trail__link.done {
+  background-image: linear-gradient(to right, var(--brand-gold) 50%, transparent 50%);
+  background-size: 8px 2px;
+}
+
+/* animated score pill — flashes gold when score changes */
+@keyframes scoreBump {
+  0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(224,162,58,0.6); }
+  40%  { transform: scale(1.18); box-shadow: 0 0 0 8px rgba(224,162,58,0.0); }
+  100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(224,162,58,0); }
+}
+.header-content .user-info > #scoreDisplay.bump {
+  animation: scoreBump 0.6s ease-out;
+}
+@keyframes scoreFlash {
+  0%   { color: var(--brand-gold); }
+  50%  { color: #fff; text-shadow: 0 0 8px var(--brand-gold); }
+  100% { color: var(--brand-gold); text-shadow: none; }
+}
+.header-content .user-info > #scoreDisplay.flash {
+  animation: scoreFlash 0.6s ease-out;
+}
+
+/* ============================================================
+   Finished state
+   ============================================================ */
+#finishedState { text-align: center; padding: 16px; }
+#finishedState h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 0.04em;
+  margin: 8px 0;
+  color: var(--brand-gold);
+}
+#finishedState p { color: var(--fg-2); margin: 8px 0; }
 #finalScore {
-    font-size: 2rem;
-    color: var(--success-color);
-    font-weight: 700;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 48px;
+  color: var(--brand-gold);
+  display: block;
+  margin: 16px 0 4px;
+  letter-spacing: 0.04em;
 }
 
-/* --- Admin Dashboard Specific --- */
+/* ============================================================
+   Leaderboard (admin)
+   ============================================================ */
 .admin-card h3 {
-    text-align: center;
-    margin-top: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-size: 22px;
+  margin: 0 0 24px;
 }
-
 .leaderboard-container {
-    width: 100%;
-    overflow-x: auto;
+  width: 100%;
+  overflow-x: auto;
 }
-
 #leaderboardTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.5rem;
+  width: 100%;
+  border-collapse: collapse;
 }
-
-#leaderboardTable th, #leaderboardTable td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+#leaderboardTable th,
+#leaderboardTable td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-1);
+  font-size: 14px;
 }
-
 #leaderboardTable th {
-    color: var(--text-muted);
-    font-weight: 600;
+  color: var(--fg-3);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(40,49,67,0.4);
+}
+#leaderboardTable tr:last-child td { border-bottom: none; }
+#leaderboardTable tbody tr { transition: background 0.15s; }
+#leaderboardTable tbody tr:hover { background: var(--bg-3); }
+#leaderboardTable td:first-child {
+  font-family: var(--font-mono);
+  color: var(--fg-3);
+  font-weight: 500;
+  width: 60px;
+}
+#leaderboardTable tbody tr:first-child td:first-child {
+  color: var(--brand-gold);
+  font-weight: 700;
+}
+#leaderboardTable td:nth-child(4) {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--fg-1);
 }
 
-#leaderboardTable tbody tr:last-child td {
-    border-bottom: none;
-}
-
-#leaderboardTable tbody tr:hover {
-    background-color: #374151;
-}
-
-/* --- Modal --- */
+/* ============================================================
+   Modal
+   ============================================================ */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
 }
-
 .modal-content {
-    background-color: var(--card-background);
-    padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  background: var(--bg-2);
+  padding: 32px;
+  border-radius: var(--r-md);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border-1);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
 }
-
 .modal-content h3 {
-    margin-top: 0;
+  margin: 0 0 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 22px;
 }
-
 .modal-content p {
-    color: var(--text-muted);
-    margin-bottom: 2rem;
+  color: var(--fg-2);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+.modal-content #modal-actions-default .btn-primary { width: 100%; }
+.modal-content #modal-actions-confirm {
+  display: flex;
+  gap: 10px;
+}
+.modal-content #modal-actions-confirm .btn-secondary,
+.modal-content #modal-actions-confirm .btn-danger {
+  flex: 1;
+  width: auto;
+  padding: 12px;
+  font-size: 14px;
 }
 
-/* --- Utility & Error --- */
+/* ============================================================
+   Error message
+   ============================================================ */
 .error-message {
-    color: var(--danger-color);
-    text-align: center;
-    margin-top: 1rem;
-    min-height: 1.2em;
+  color: #FCA5A5;
+  text-align: center;
+  margin-top: 12px;
+  min-height: 1.2em;
+  font-size: 13px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 640px) {
+  .app-header { padding: 12px 16px; }
+  .header-content { flex-wrap: wrap; gap: 8px 12px; }
+  .header-content h2 { font-size: 16px; flex: 1 0 auto; }
+  .header-content .user-info { font-size: 13px; gap: 8px; order: 3; flex: 1 1 100%; justify-content: flex-start; }
+  .header-content #logoutButton { padding: 6px 12px; font-size: 12px; }
+  .container { margin: 16px auto; }
+  .auth-card, .game-card, .admin-card { padding: 24px 20px; }
+  .auth-header h1 { font-size: 30px; }
+  .puzzle-text { font-size: 15px; }
+  .checkpoint-header h3 { font-size: 18px; }
+  /* sticky submit on mobile so the action is always reachable */
+  .game-card .btn-primary { position: sticky; bottom: 12px; z-index: 5; }
+  .support-actions { flex-direction: column; gap: 8px; }
+  .support-actions .btn-secondary, .support-actions .btn-danger { width: 100%; }
+  #leaderboardTable th, #leaderboardTable td { padding: 10px 8px; font-size: 13px; }
+  #leaderboardTable th:nth-child(3),
+  #leaderboardTable td:nth-child(3) { display: none; }
+  .trail { max-width: 220px; }
+  .trail__step { width: 12px; height: 12px; }
 }

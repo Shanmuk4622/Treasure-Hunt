@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Hunt — Admin (mock)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <h2>Treasure Hunt</h2>
+            <div class="user-info">
+                <span>Admin: questmaster</span>
+            </div>
+            <button class="btn-secondary">Logout</button>
+        </div>
+    </header>
+    <div class="container container--wide">
+        <div class="admin-card">
+            <h3>Live Leaderboard</h3>
+            <div class="leaderboard-container">
+                <table id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Participant</th>
+                            <th>Progress</th>
+                            <th>Total Score</th>
+                            <th style="text-align:right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>cartographer42</td><td><span style="color:#86EFAC; font-weight:600">Finished!</span></td><td>340</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                        <tr><td>2</td><td>seabee_sam</td><td>Completed 3/4</td><td>240</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                        <tr><td>3</td><td>marlowe</td><td>Completed 3/4</td><td>210</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                        <tr><td>4</td><td>nyx</td><td>Completed 2/4</td><td>120</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                        <tr><td>5</td><td>blackbeard88</td><td>Completed 1/4</td><td>50</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                        <tr><td>6</td><td>greenhorn</td><td>Completed 0/4</td><td>0</td><td style="text-align:right"><button class="btn-danger btn-reset">Reset</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treasure Hunt - Admin Dashboard</title>
+    <title>Treasure Hunt — Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <header class="app-header">
         <div class="header-content">
-            <h2>Admin Dashboard</h2>
+            <h2>Treasure Hunt</h2>
             <div class="user-info">
                 <span id="adminUsername"></span>
             </div>
             <button id="logoutButton" class="btn-secondary">Logout</button>
         </div>
     </header>
-    <div class="container">
+    <div class="container container--wide">
         <div class="admin-card">
             <h3>Live Leaderboard</h3>
             <div class="leaderboard-container">
@@ -29,126 +29,144 @@
                         <tr>
                             <th>Rank</th>
                             <th>Participant</th>
-                            <th>Current Checkpoint</th>
+                            <th>Progress</th>
                             <th>Total Score</th>
+                            <th style="text-align:right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboardBody">
-                        <!-- Rows will be populated by JavaScript -->
+                        <tr><td colspan="5" style="text-align: center; color: var(--fg-3)">Loading leaderboard…</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
     <div id="modal" class="modal-overlay" style="display:none;">
         <div class="modal-content">
-            <h3 id="modalTitle">Access Denied</h3>
-            <p id="modalMessage">You must be an admin to view this page. Redirecting to login...</p>
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div id="modal-actions-default">
+                <button id="modalCloseButton" class="btn-primary">Close</button>
+            </div>
+            <div id="modal-actions-confirm" style="display: none;">
+                <button id="modalCancelButton" class="btn-secondary">Cancel</button>
+                <button id="modalConfirmButton" class="btn-danger">Confirm</button>
+            </div>
         </div>
     </div>
-</body>
+
     <script>
-        // --- SUPABASE CLIENT SETUP ---
         const SUPABASE_URL = 'https://sfvnssyrmikyyyewwdkw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmdm5zc3lybWlreXl5ZXd3ZGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxNjI3NjksImV4cCI6MjA2OTczODc2OX0.SqPgb7f_iU7uVj1IW5AVJWo2qHsPLPXMiXMy9g88JgQ';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- DOM ELEMENTS ---
         const leaderboardBody = document.getElementById('leaderboardBody');
         const adminUsername = document.getElementById('adminUsername');
         const logoutButton = document.getElementById('logoutButton');
         const modal = document.getElementById('modal');
-        const modalMessage = document.getElementById('modalMessage');
         const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+        const modalConfirmButton = document.getElementById('modalConfirmButton');
+        const modalCancelButton = document.getElementById('modalCancelButton');
+        const modalActionsDefault = document.getElementById('modal-actions-default');
+        const modalActionsConfirm = document.getElementById('modal-actions-confirm');
 
-        // --- INITIALIZATION ---
+        let confirmCallback = null;
+        function showConfirmation(title, message, onConfirm) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalActionsDefault.style.display = 'none';
+            modalActionsConfirm.style.display = 'flex';
+            modal.style.display = 'flex';
+            confirmCallback = onConfirm;
+        }
+        function closeModal() {
+            modal.style.display = 'none';
+            modalActionsDefault.style.display = 'block';
+            modalActionsConfirm.style.display = 'none';
+            confirmCallback = null;
+        }
+        modalCloseButton.addEventListener('click', closeModal);
+        modalCancelButton.addEventListener('click', closeModal);
+        modalConfirmButton.addEventListener('click', () => { if (typeof confirmCallback === 'function') confirmCallback(); closeModal(); });
+
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
-            if (error || !session) {
-                window.location.href = 'index.html';
-                return;
-            }
-            // Verify user is an admin
+            if (error || !session) { window.location.href = 'index.html'; return; }
             const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role, username')
-                .eq('id', session.user.id)
-                .single();
+                .from('profiles').select('role, username').eq('id', session.user.id).single();
             if (profileError || profile.role !== 'admin') {
-                modal.style.display = 'flex';
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
+                showConfirmation('Access Denied', 'You must be an admin to view this page. Redirecting…', () => { window.location.href = 'index.html'; });
+                setTimeout(() => { window.location.href = 'index.html'; }, 3000);
                 return;
             }
             adminUsername.textContent = `Admin: ${profile.username}`;
-            // Initial load and set up real-time listener
             await fetchAndRenderLeaderboard();
             listenForChanges();
         });
 
-        // --- DATA FETCHING AND RENDERING ---
         async function fetchAndRenderLeaderboard() {
-            // Fetch all profiles with their progress
-            const { data: profiles, error } = await supabase
-                .from('profiles')
-                .select('id, username, total_score, progress ( checkpoint_id, status )')
-                .eq('role', 'participant')
-                .order('total_score', { ascending: false });
-            if (error) {
-                console.error('Error fetching leaderboard:', error);
-                return;
-            }
-            // Process data to find current checkpoint for each user
-            const leaderboardData = profiles.map(profile => {
-                const unlockedCheckpoints = profile.progress
-                    .filter(p => p.status === 'unlocked')
-                    .map(p => p.checkpoint_id);
-                const completedCount = profile.progress.filter(p => p.status === 'completed').length;
-                let currentStatus;
-                if (unlockedCheckpoints.length > 0) {
-                    currentStatus = `On Checkpoint ${Math.min(...unlockedCheckpoints)}`;
-                } else if (completedCount === 4) {
-                    currentStatus = 'Finished!';
-                } else {
-                    currentStatus = 'Not Started';
+            try {
+                const { data: profiles, error } = await supabase
+                    .from('profiles').select(`id, username, total_score, progress (checkpoint_id)`)
+                    .eq('role', 'participant').order('total_score', { ascending: false });
+                if (error) throw error;
+                const totalChallenges = 4;
+                leaderboardBody.innerHTML = '';
+                if (profiles.length === 0) {
+                    leaderboardBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--fg-3)">No participants yet.</td></tr>';
+                    return;
                 }
-                return {
-                    username: profile.username,
-                    score: profile.total_score,
-                    status: currentStatus
-                };
-            });
-            // Sort by score
-            leaderboardData.sort((a, b) => b.score - a.score);
-            // Render the table
-            leaderboardBody.innerHTML = '';
-            leaderboardData.forEach((player, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${player.username}</td>
-                    <td>${player.status}</td>
-                    <td>${player.score}</td>
-                `;
-                leaderboardBody.appendChild(row);
-            });
+                profiles.forEach((profile, index) => {
+                    const completedCount = profile.progress.length;
+                    let currentStatus = `Completed ${completedCount}/${totalChallenges}`;
+                    if (completedCount >= totalChallenges) currentStatus = '<span style="color:#86EFAC; font-weight:600">Finished!</span>';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${profile.username}</td>
+                        <td>${currentStatus}</td>
+                        <td>${profile.total_score}</td>
+                        <td style="text-align:right">
+                            <button class="btn-danger btn-reset" data-user-id="${profile.id}" data-username="${profile.username}">Reset</button>
+                        </td>
+                    `;
+                    leaderboardBody.appendChild(row);
+                });
+            } catch (error) {
+                leaderboardBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #FCA5A5">Error: ${error.message}</td></tr>`;
+            }
         }
 
-        // --- REAL-TIME SUBSCRIPTION ---
+        leaderboardBody.addEventListener('click', async (event) => {
+            if (event.target.classList.contains('btn-reset')) {
+                const button = event.target;
+                const userId = button.dataset.userId;
+                const username = button.dataset.username;
+                showConfirmation(`Reset ${username}?`,
+                    `Are you sure you want to reset all progress and scores for ${username}? This action cannot be undone.`,
+                    async () => {
+                        button.disabled = true; button.textContent = 'Resetting…';
+                        try {
+                            const { error } = await supabase.rpc('reset_user_progress', { user_id_input: userId });
+                            if (error) throw error;
+                        } catch (error) {
+                            alert(`Failed to reset user: ${error.message}`);
+                            button.disabled = false; button.textContent = 'Reset';
+                        }
+                    });
+            }
+        });
+
         function listenForChanges() {
-            // Listen to changes on both profiles (for score updates) and progress (for status changes)
-            const subscription = supabase.channel('public:profiles')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
-                    fetchAndRenderLeaderboard();
-                })
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, payload => {
-                    fetchAndRenderLeaderboard();
-                })
+            supabase.channel('public-leaderboard-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, fetchAndRenderLeaderboard)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, fetchAndRenderLeaderboard)
                 .subscribe();
         }
 
-        // --- LOGOUT ---
         logoutButton.addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.href = 'index.html';
